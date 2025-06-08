@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新发村·时翠山谷 | 超时空链岛</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.151.3/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#00C48C',
+                        accent: '#FF7D00',
+                        dark: '#1E293B',
+                        'dark-light': '#334155',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                },
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 4px 8px rgba(0,0,0,0.25);
+            }
+            .backdrop-blur {
+                backdrop-filter: blur(8px);
+            }
+            .glass {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }
+            .grid-masonry {
+                grid-template-rows: masonry;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-dark text-light min-h-screen overflow-x-hidden">
+    <!-- 导航栏 -->
+    <nav id="main-nav" class="fixed top-0 left-0 w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-primary flex items-center">
+                <span class="fa fa-link mr-2"></span>
+                <span>超时空链岛</span>
+            </a>
+            
+            <!-- 桌面导航 -->
+            <div class="hidden md:flex space-x-8">
+                <a href="#about" class="text-light hover:text-primary transition-colors">关于</a>
+                <a href="#islands" class="text-light hover:text-primary transition-colors">链岛探索</a>
+                <a href="#experience" class="text-light hover:text-primary transition-colors">特色体验</a>
+                <a href="#dashboard" class="text-light hover:text-primary transition-colors">实时数据</a>
+                <a href="#booking" class="text-light hover:text-primary transition-colors">预约行程</a>
+            </div>
+            
+            <!-- 移动端菜单按钮 -->
+            <button id="menu-toggle" class="md:hidden text-light text-xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-light w-full py-4 px-4 glass">
+            <div class="flex flex-col space-y-4">
+                <a href="#about" class="text-light hover:text-primary transition-colors py-2">关于</a>
+                <a href="#islands" class="text-light hover:text-primary transition-colors py-2">链岛探索</a>
+                <a href="#experience" class="text-light hover:text-primary transition-colors py-2">特色体验</a>
+                <a href="#dashboard" class="text-light hover:text-primary transition-colors py-2">实时数据</a>
+                <a href="#booking" class="text-light hover:text-primary transition-colors py-2">预约行程</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div id="hero-canvas" class="absolute inset-0 z-0"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-dark/50 to-dark z-10"></div>
+        
+        <div class="container mx-auto px-4 z-20 text-center">
+            <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-bold leading-tight text-shadow-lg mb-6">
+                跨越时空的<br><span class="text-primary">未来村落</span>
+            </h1>
+            <p class="text-[clamp(1rem,3vw,1.5rem)] text-light/80 max-w-3xl mx-auto mb-10">
+                探索七大链岛，体验虚实共生的全新生活方式
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#islands" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full transition-all transform hover:scale-105 shadow-lg hover:shadow-primary/30 flex items-center justify-center">
+                    <i class="fa fa-compass mr-2"></i> 开始探索
+                </a>
+                <a href="#booking" class="bg-transparent border-2 border-white hover:border-primary hover:text-primary text-white px-8 py-3 rounded-full transition-all transform hover:scale-105 shadow-lg flex items-center justify-center">
+                    <i class="fa fa-calendar mr-2"></i> 预约行程
+                </a>
+            </div>
+            
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+                <a href="#about" class="text-light/70 hover:text-light transition-colors">
+                    <i class="fa fa-angle-down text-3xl"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我们 -->
+    <section id="about" class="py-20 bg-gradient-to-b from-dark to-dark-light">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-bold mb-4">超时空链岛简介</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-light/70 max-w-3xl mx-auto">
+                    新发村·时翠山谷【超时空链岛】是一个融合云南在地文化与前沿科技的未来乡村社区，
+                    通过数字孪生技术实现虚实共生的全新生活方式。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-dark-light/50 p-8 rounded-xl shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-2 glass">
+                    <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-globe text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">超时空体验</h3>
+                    <p class="text-light/70">
+                        打破物理边界与线性时间束缚，实现实体村落与虚拟社区的无缝切换，
+                        让传统在创新中焕发新生。
+                    </p>
+                </div>
+                
+                <div class="bg-dark-light/50 p-8 rounded-xl shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-2 glass">
+                    <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-link text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">链岛网络</h3>
+                    <p class="text-light/70">
+                        由多个功能各异的"活力单元"组成，通过共享环线、慢行网络和数字平台紧密链接，
+                        形成有机整体。
+                    </p>
+                </div>
+                
+                <div class="bg-dark-light/50 p-8 rounded-xl shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-2 glass">
+                    <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-users text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">多元共生</h3>
+                    <p class="text-light/70">
+                        数字游民、原住民、游客在此和谐共处，共同创造一个充满活力、持续进化、
+                        尊重多元的未来家园。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 链岛探索 -->
+    <section id="islands" class="py-20 bg-dark-light relative">
+        <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-dark to-transparent"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-bold mb-4">探索七大链岛</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-light/70 max-w-3xl mx-auto">
+                    每个链岛都有其独特的功能和体验，通过时空纽带紧密相连，
+                    形成一个活力共生的群岛生态系统。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 云端创播岛 -->
+                <div class="island-card group bg-dark rounded-xl overflow-hidden shadow-lg hover:shadow-primary/30 transition-all duration-300">
+                    <div class="relative h-60 overflow-hidden">
+                        <img src="https://picsum.photos/seed/broadcast/800/600" alt="云端创播岛" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <span class="px-3 py-1 bg-primary/80 rounded-full text-xs font-medium">热门</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">云端创播岛</h3>
+                        <p class="text-light/70 mb-4">全球直播枢纽，配备最先进的直播设备和远程协作区，一键切换虚拟背景。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="text-sm text-light/60"><i class="fa fa-map-marker mr-1"></i> 快节奏区</span>
+                            </div>
+                            <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                                探索 <i class="fa fa-arrow-right ml-1 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 谧境疗愈岛 -->
+                <div class="island-card group bg-dark rounded-xl overflow-hidden shadow-lg hover:shadow-primary/30 transition-all duration-300">
+                    <div class="relative h-60 overflow-hidden">
+                        <img src="https://picsum.photos/seed/healing/800/600" alt="谧境疗愈岛" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">谧境疗愈岛</h3>
+                        <p class="text-light/70 mb-4">结合自然疗愈与智能监测技术，提供个性化森林疗愈方案和极致静谧体验。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="text-sm text-light/60"><i class="fa fa-map-marker mr-1"></i> 慢节奏区</span>
+                            </div>
+                            <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                                探索 <i class="fa fa-arrow-right ml-1 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 烟火艺境岛 -->
+                <div class="island-card group bg-dark rounded-xl overflow-hidden shadow-lg hover:shadow-primary/30 transition-all duration-300">
+                    <div class="relative h-60 overflow-hidden">
+                        <img src="https://picsum.photos/seed/culture/800/600" alt="烟火艺境岛" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">烟火艺境岛</h3>
+                        <p class="text-light/70 mb-4">活态文化展演场，实体表演区与数字孪生社区同步直播互动，全息投影复现传统节庆。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="text-sm text-light/60"><i class="fa fa-map-marker mr-1"></i> 慢节奏区</span>
+                            </div>
+                            <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                                探索 <i class="fa fa-arrow-right ml-1 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 匠新传承岛 -->
+                <div class="island-card group bg-dark rounded-xl overflow-hidden shadow-lg hover:shadow-primary/30 transition-all duration-300">
+                    <div class="relative h-60 overflow-hidden">
+                        <img src="https://picsum.photos/seed/craft/800/600" alt="匠新传承岛" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">匠新传承岛</h3>
+                        <p class="text-light/70 mb-4">聚焦非遗创新，引入3D扫描、打印技术辅助设计，AR体验查看纹样历史演变。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="text-sm text-light/60"><i class="fa fa-map-marker mr-1"></i> 中节奏区</span>
+                            </div>
+                            <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                                探索 <i class="fa fa-arrow-right ml-1 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 人格跃迁岛 -->
+                <div class="island-card group bg-dark rounded-xl overflow-hidden shadow-lg hover:shadow-primary/30 transition-all duration-300">
+                    <div class="relative h-60 overflow-hidden">
+                        <img src="https://picsum.photos/seed/personality/800/600" alt="人格跃迁岛" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">人格跃迁岛</h3>
+                        <p class="text-light/70 mb-4">深化MBTI应用，构建虚拟人格社区，通过线上线下活动帮助用户探索自我与未来。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="text-sm text-light/60"><i class="fa fa-map-marker mr-1"></i> 中节奏区</span>
+                            </div>
+                            <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                                探索 <i class="fa fa-arrow-right ml-1 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 探秘游戏岛 -->
+                <div class="island-card group bg-dark rounded-xl overflow-hidden shadow-lg hover:shadow-primary/30 transition-all duration-300">
+                    <div class="relative h-60 overflow-hidden">
+                        <img src="https://picsum.photos/seed/adventure/800/600" alt="探秘游戏岛" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <span class="px-3 py-1 bg-accent/80 rounded-full text-xs font-medium">推荐</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">探秘游戏岛</h3>
+                        <p class="text-light/70 mb-4">设计跨单元串联的实景解谜主线任务，结合桌游和数字平台，带来沉浸式游戏体验。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <span class="text-sm text-light/60"><i class="fa fa-map-marker mr-1"></i> 中节奏区</span>
+                            </div>
+                            <a href="#" class="text-primary hover:text-primary/80 font-medium flex items-center">
+                                探索 <i class="fa fa-arrow-right ml-1 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="#" class="inline-flex items-center px-6 py-3 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors">
+                    查看全部链岛 <i class="fa fa-long-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特色体验 -->
+    <section id="experience" class="py-20 bg-dark relative">
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full bg-[url('https://picsum.photos/seed/bg/1920/1080')] bg-cover bg-center opacity-10"></div>
+            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-dark-light to-transparent"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-bold mb-4">特色体验</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-light/70 max-w-3xl mx-auto">
+                    在这里，你可以体验到虚实共生的独特魅力，感受传统与现代的完美融合。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1">
+                    <h3 class="text-2xl font-semibold mb-6">数字孪生社区</h3>
+                    <p class="text-light/70 mb-6">
+                        我们通过先进的数字孪生技术，创建了与实体村落完全对应的虚拟社区。
+                        在这里，你可以随时随地访问链岛的任何角落，参与线上活动，与其他居民互动。
+                    </p>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-3"></i>
+                            <span>实时同步实体村落的活动和事件</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-3"></i>
+                            <span>创建个性化数字分身，参与虚拟社区建设</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-3"></i>
+                            <span>AR叠映功能，在现实场景中查看虚拟社区规划</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-check-circle text-primary mt-1 mr-3"></i>
+                            <span>线上线下联动的活动和体验</span>
+                        </li>
+                    </ul>
+                    <a href="#" class="inline-flex items-center px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-full transition-colors shadow-lg hover:shadow-primary/30">
+                        体验数字孪生 <i class="fa fa-external-link ml-2"></i>
+                    </a>
+                </div>
+                
+                <div class="order-1 lg:order-2 relative">
+                    <div class="relative rounded-xl overflow-hidden shadow-2xl">
+                        <img src="https://picsum.photos/seed/digital/800/600" alt="数字孪生社区" class="w-full h-auto">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark/80 to-transparent"></div>
+                        <div class="absolute bottom-6 left-6">
+                            <div class="flex items-center mb-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                                <span class="text-sm text-light/80">实时同步中</span>
+                            </div>
+                            <h4 class="text-xl font-semibold">当前在线: 238人</h4>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute -bottom-6 -right-6 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+                    <div class="absolute -top-6 -left-6 w-40 h-40 bg-secondary/20 rounded-full blur-3xl"></div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20">
+                <div class="bg-dark-light/50 p-6 rounded-xl shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-2 glass">
+                    <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-vr-cardboard text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">沉浸式AR体验</h3>
+                    <p class="text-light/70">
+                        通过手机或AR眼镜，体验增强现实技术带来的独特视角，
+                        探索链岛的历史文化和未来规划。
+                    </p>
+                </div>
+                
+                <div class="bg-dark-light/50 p-6 rounded-xl shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-2 glass">
+                    <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-gamepad text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">链岛奇遇记</h3>
+                    <p class="text-light/70">
+                        参与跨岛解谜任务，探索链岛的每一个角落，
+                        完成挑战可获得虚拟社区权益和实体奖励。
+                    </p>
+                </div>
+                
+                <div class="bg-dark-light/50 p-6 rounded-xl shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-2 glass">
+                    <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-comments text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">MBTI社交体验</h3>
+                    <p class="text-light/70">
+                        基于MBTI人格类型，匹配志同道合的伙伴，
+                        参与个性化活动，拓展社交圈。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 实时数据仪表盘 -->
+    <section id="dashboard" class="py-20 bg-dark-light relative">
+        <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-dark to-transparent"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-bold mb-4">链岛实时数据</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-light/70 max-w-3xl mx-auto">
+                    实时监控各链岛的运行状态和数据指标，掌握社区的脉搏。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-dark p-6 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-light/70 text-sm">当前在线人数</h4>
+                            <p class="text-3xl font-bold">387</p>
+                        </div>
+                        <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                            <i class="fa fa-users text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center text-green-500 text-sm">
+                        <i class="fa fa-arrow-up mr-1"></i>
+                        <span>较昨日增长 12.5%</span>
+                    </div>
+                </div>
+                
+                <div class="bg-dark p-6 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-light/70 text-sm">今日活动</h4>
+                            <p class="text-3xl font-bold">12</p>
+                        </div>
+                        <div class="w-10 h-10 bg-secondary/20 rounded-full flex items-center justify-center">
+                            <i class="fa fa-calendar-check-o text-secondary"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center text-green-500 text-sm">
+                        <i class="fa fa-arrow-up mr-1"></i>
+                        <span>较昨日增长 20%</span>
+                    </div>
+                </div>
+                
+                <div class="bg-dark p-6 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-light/70 text-sm">能量消耗</h4>
+                            <p class="text-3xl font-bold">68%</p>
+                        </div>
+                        <div class="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center">
+                            <i class="fa fa-bolt text-accent"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center text-red-500 text-sm">
+                        <i class="fa fa-arrow-up mr-1"></i>
+                        <span>较昨日增长 5%</span>
+                    </div>
+                </div>
+                
+                <div class="bg-dark p-6 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-light/70 text-sm">链岛贡献值</h4>
+                            <p class="text-3xl font-bold">25.7K</p>
+                        </div>
+                        <div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                            <i class="fa fa-diamond text-blue-500"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center text-green-500 text-sm">
+                        <i class="fa fa-arrow-up mr-1"></i>
+                        <span>较昨日增长 8.3%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="bg-dark p-6 rounded-xl shadow-lg lg:col-span-2">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold">链岛活跃度趋势</h3>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 text-sm bg-primary/20 text-primary rounded-full">今日</button>
+                            <button class="px-3 py-1 text-sm bg-dark-light text-light/70 rounded-full hover:bg-dark-light/70 transition-colors">本周</button>
+                            <button class="px-3 py-1 text-sm bg-dark-light text-light/70 rounded-full hover:bg-dark-light/70 transition-colors">本月</button>
+                        </div>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-dark p-6 rounded-xl shadow-lg">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold">各链岛人气分布</h3>
+                        <button class="text-primary hover:text-primary/80 text-sm">
+                            查看详情 <i class="fa fa-angle-right ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="islandChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 预约行程 -->
+    <section id="booking" class="py-20 bg-dark relative">
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full bg-[url('https://picsum.photos/seed/booking/1920/1080')] bg-cover bg-center opacity-10"></div>
+            <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-dark-light to-transparent"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,5vw,3rem)] font-bold mb-4">预约你的行程</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-light/70 max-w-3xl mx-auto">
+                    计划你的超时空链岛之旅，体验独特的虚实共生生活方式。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div class="lg:col-span-2 bg-dark-light p-8 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold mb-6">选择你的体验</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-dark p-4 rounded-lg hover:bg-dark/70 transition-colors cursor-pointer">
+                            <div class="flex items-center">
+                                <input type="radio" name="experience" id="exp1" class="mr-3">
+                                <label for="exp1">
+                                    <span class="block font-medium">链岛探索一日游</span>
+                                    <span class="text-light/70 text-sm">体验所有链岛的核心项目，适合初次访问者</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-dark p-4 rounded-lg hover:bg-dark/70 transition-colors cursor-pointer">
+                            <div class="flex items-center">
+                                <input type="radio" name="experience" id="exp2" class="mr-3">
+                                <label for="exp2">
+                                    <span class="block font-medium">数字游民一周体验</span>
+                                    <span class="text-light/70 text-sm">深度体验云端创播岛和人格跃迁岛的工作生活</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-dark p-4 rounded-lg hover:bg-dark/70 transition-colors cursor-pointer">
+                            <div class="flex items-center">
+                                <input type="radio" name="experience" id="exp3" class="mr-3">
+                                <label for="exp3">
+                                    <span class="block font-medium">文化传承沉浸式体验</span>
+                                    <span class="text-light/70 text-sm">专注于烟火艺境岛和匠新传承岛的非遗体验</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-dark p-4 rounded-lg hover:bg-dark/70 transition-colors cursor-pointer">
+                            <div class="flex items-center">
+                                <input type="radio" name="experience" id="exp4" class="mr-3">
+                                <label for="exp4">
+                                    <span class="block font-medium">定制化链岛之旅</span>
+                                    <span class="text-light/70 text-sm">根据个人兴趣定制专属行程，深度体验特定链岛</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h4 class="font-medium mb-4">附加服务</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="bg-dark p-3 rounded-lg flex items-center justify-between">
+                                <span>AR导览设备租赁</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="bg-dark p-3 rounded-lg flex items-center justify-between">
+                                <span>私人导游服务</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="bg-dark p-3 rounded-lg flex items-center justify-between">
+                                <span>特色餐饮体验</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="bg-dark p-3 rounded-lg flex items-center justify-between">
+                                <span>MBTI人格测评</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lg:col-span-3 bg-dark-light p-8 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold mb-6">填写预约信息</h3>
+                    
+                    <form class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-light/70 mb-2">姓名</label>
+                                <input type="text" id="name" class="w-full px-4 py-3 bg-dark border border-dark-light rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="请输入您的姓名">
+                            </div>
+                            
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-light/70 mb-2">手机号码</label>
+                                <input type="tel" id="phone" class="w-full px-4 py-3 bg-dark border border-dark-light rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="请输入您的手机号码">
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-light/70 mb-2">电子邮箱</label>
+                                <input type="email" id="email" class="w-full px-4 py-3 bg-dark border border-dark-light rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="请输入您的电子邮箱">
+                            </div>
+                            
+                            <div>
+                                <label for="mbti" class="block text-sm font-medium text-light/70 mb-2">MBTI人格类型 (可选)</label>
+                                <input type="text" id="mbti" class="w-full px-4 py-3 bg-dark border border-dark-light rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="如: INTJ, ENFP等">
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="date" class="block text-sm font-medium text-light/70 mb-2">预计到访日期</label>
+                                <input type="date" id="date" class="w-full px-4 py-3 bg-dark border border-dark-light rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition-all">
+                            </div>
+                            
+                            <div>
+                                <label for="duration" class="block text-sm font-medium text-light/70 mb-2">停留时长</label>
+                                <select id="duration" class="w-full px-4 py-3 bg-dark border border-dark-light rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition-all">
+                                    <option value="">请选择</option>
+                                    <option value="1">1天</option>
+                                    <option value="2">2天1晚</option>
+                                    <option value="3">3天2晚</option>
+                                    <option value="4">4天3晚</option>
+                                    <option value="5">5天4晚</option>
+                                    <option value="7">1周</option>
+                                    <option value="14">2周</option>
+                                    <option value="30">1个月</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-light/70 mb-2">特殊需求或问题</label>
+                            <textarea id="message" rows="4" class="w-full px-4 py-3 bg-dark border border-dark-light rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="请输入您的特殊需求或问题"></textarea>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="privacy" type="checkbox" class="w-4 h-4 bg-dark border border-dark-light rounded focus:ring-primary">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="privacy" class="text-light/70">我已阅读并同意<a href="#" class="text-primary hover:underline">隐私政策</a>和<a href="#" class="text-primary hover:underline">服务条款</a></label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors shadow-lg hover:shadow-primary/30 font-medium">
+                            提交预约申请
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark pt-16 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <a href="#" class="text-2xl font-bold text-primary flex items-center mb-6">
+                        <span class="fa fa-link mr-2"></span>
+                        <span>超时空链岛</span>
+                    </a>
+                    <p class="text-light/70 mb-6">
+                        跨越时空的未来村落，虚实共生的全新生活方式。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-dark-light rounded-full flex items-center justify-center text-light hover:bg-primary hover:text-white transition-colors">
+                            <i class="fa fa-weixin"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-dark-light rounded-full flex items-center justify-center text-light hover:bg-primary hover:text-white transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-dark-light rounded-full flex items-center justify-center text-light hover:bg-primary hover:text-white transition-colors">
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-dark-light rounded-full flex items-center justify-center text-light hover:bg-primary hover:text-white transition-colors">
+                            <i class="fa fa-youtube-play"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">快速链接</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#about" class="text-light/70 hover:text-primary transition-colors">关于我们</a></li>
+                        <li><a href="#islands" class="text-light/70 hover:text-primary transition-colors">链岛探索</a></li>
+                        <li><a href="#experience" class="text-light/70 hover:text-primary transition-colors">特色体验</a></li>
+                        <li><a href="#dashboard" class="text-light/70 hover:text-primary transition-colors">实时数据</a></li>
+                        <li><a href="#booking" class="text-light/70 hover:text-primary transition-colors">预约行程</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">联系我们</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fa fa-map-marker text-primary mt-1 mr-3"></i>
+                            <span class="text-light/70">云南省昆明市新发村·时翠山谷</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-phone text-primary mt-1 mr-3"></i>
+                            <span class="text-light/70">+86 871-12345678</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-envelope text-primary mt-1 mr-3"></i>
+                            <span class="text-light/70">info@spacetime-chain-island.com</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa fa-clock-o text-primary mt-1 mr-3"></i>
+                            <span class="text-light/70">周一至周日 9:00-21:00</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">订阅我们</h4>
+                    <p class="text-light/70 mb-4">
+                        订阅我们的通讯，获取最新活动和优惠信息。
+                    </p>
+                    <form class="mb-4">
+                        <div class="flex">
+                            <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 bg-dark-light border border-dark rounded-l-lg focus:ring-2 focus:ring-primary focus:outline-none w-full">
+                            <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-4 rounded-r-lg transition-colors">
+                                <i class="fa fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <p class="text-light/50 text-sm">
+                        我们尊重您的隐私，不会向第三方分享您的信息。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="border-t border-dark-light pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-light/50 text-sm mb-4 md:mb-0">
+                        &copy; 2025 超时空链岛. 保留所有权利.
+                    </p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="text-light/50 hover:text-light/80 text-sm transition-colors">隐私政策</a>
+                        <a href="#" class="text-light/50 hover:text-light/80 text-sm transition-colors">服务条款</a>
+                        <a href="#" class="text-light/50 hover:text-light/80 text-sm transition-colors">Cookie政策</a>
+                        <a href="#" class="text-light/50 hover:text-light/80 text-sm transition-colors">网站地图</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 导航栏滚动效果
+        const nav = document.getElementById('main-nav');
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-dark/95', 'shadow-lg');
+                nav.classList.remove('bg-transparent');
+            } else {
+                nav.classList.remove('bg-dark/95', 'shadow-lg');
+                nav.classList.add('bg-transparent');
+            }
+        });
+        
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 初始化Three.js场景
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('hero-canvas').appendChild(renderer.domElement);
+        
+        // 创建粒子系统
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1500;
+        
+        const posArray = new Float32Array(particlesCount * 3);
+        for (let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+        
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            color: 0x165DFF,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+        
+        camera.position.z = 5;
+        
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            particlesMesh.rotation.x += 0.0005;
+            particlesMesh.rotation.y += 0.0005;
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // 响应式处理
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // 初始化图表
+        window.addEventListener('load', () => {
+            // 活动趋势图表
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            new Chart(activityCtx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+                    datasets: [{
+                        label: '在线人数',
+                        data: [120, 85, 70, 150, 250, 320, 387, 300],
+                        borderColor: '#165DFF',
+                        backgroundColor: 'rgba(22, 93, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 链岛人气分布图表
+            const islandCtx = document.getElementById('islandChart').getContext('2d');
+            new Chart(islandCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['云端创播岛', '谧境疗愈岛', '烟火艺境岛', '匠新传承岛', '人格跃迁岛', '探秘游戏岛'],
+                    datasets: [{
+                        data: [25, 15, 18, 12, 14, 16],
+                        backgroundColor: [
+                            '#165DFF',
+                            '#00C48C',
+                            '#FF7D00',
+                            '#722ED1',
+                            '#F5222D',
+                            '#FAAD14'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 关闭移动菜单
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>    
